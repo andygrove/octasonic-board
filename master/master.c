@@ -8,7 +8,7 @@
 #define LED_DDR  DDRB
 #define LED_PORT PORTB
 
-#define DELAYTIME 20
+#define DELAYTIME 200
 
 #define setBit(sfr, bit)     (_SFR_BYTE(sfr) |= (1 << bit))
 #define clearBit(sfr, bit)   (_SFR_BYTE(sfr) &= ~(1 << bit))
@@ -18,10 +18,12 @@
 #define F_CPU 16000000UL
 #endif
 
-void spi_init_slave (void)
+//Initialize SPI Master Device
+void spi_init_master (void)
 {
-    DDRB=(1<<6);                                  //MISO as OUTPUT
-    SPCR=(1<<SPE);                                //Enable SPI
+    DDRB = (1<<5)|(1<<3);              //Set MOSI, SCK as Output
+    SPCR = (1<<SPE)|(1<<MSTR)|(1<<SPR0); //Enable SPI, Set as Master
+                                       //Prescaler: Fosc/16, Enable Interrupts
 }
 
 //Function to send and receive data
@@ -33,22 +35,14 @@ unsigned char spi_tranceiver (unsigned char data)
 }
 int main(void) {
 
-  spi_init_slave();
-
-  // set LED pin for output
-  setBit(LED_DDR, LED);
+  spi_init_master();
 
   // Mainloop
   while (1) {
-
-    unsigned char data = spi_tranceiver(0x55);
-
-    if (data > 0) {
-      setBit(LED_PORT, LED);
-    } else {
-      clearBit(LED_PORT, LED);
-    }
-    
+    spi_tranceiver(0x00);
+    _delay_ms(DELAYTIME);
+    spi_tranceiver(0x01);
+    _delay_ms(DELAYTIME);
   }
   return (0);                                          /* end mainloop */
 }
