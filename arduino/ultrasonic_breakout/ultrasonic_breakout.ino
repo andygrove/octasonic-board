@@ -1,19 +1,30 @@
 #include <SPI.h>
 
-const int dataReadyPin = 6;
-const int chipSelectPin = 7;
+const int chipSelectPin = 10;
 
 void setup() {
+  Serial.begin(9600);
+  SPI.beginTransaction(SPISettings(14000000, MSBFIRST, SPI_MODE0));
   SPI.begin();
   pinMode(chipSelectPin, OUTPUT);
+  digitalWrite(chipSelectPin, HIGH);
+}
+
+void send(unsigned int n) {
+  //Serial.print("Sending ");
+  //Serial.println(n);
   digitalWrite(chipSelectPin, LOW);
+  unsigned int response = SPI.transfer(n);
+  digitalWrite(chipSelectPin, HIGH);
+  //Serial.print("Received ");
+  //Serial.println(response);
+  //delay(10);
 }
 
 void loop() {
-  for (int i=10; i<200; i+=10) {
-    SPI.transfer(1);
-    delay(i);
-    SPI.transfer(0);
-    delay(i);
+  while (1) {
+    for (int i=0; i<255; i++) {
+      send(i);
+    }
   }
 }
