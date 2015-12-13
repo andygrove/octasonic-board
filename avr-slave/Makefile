@@ -163,9 +163,14 @@ flash_109: flash
 ##########------------------------------------------------------##########
 
 ## Mega 48, 88, 168, 328 default values
-LFUSE = 0x62
-HFUSE = 0xdf
-EFUSE = 0x00
+# LFUSE = 0xE2 ## 0xE2 = 8 Mz, 0x62 = 1 MHz
+# HFUSE = 0xdf
+# EFUSE = 0x00
+
+# Standard Arduino fuse bits
+LFUSE = 0xff
+HFUSE = 0xde
+EFUSE = 0x05
 
 ## Generic
 FUSE_STRING = -U lfuse:w:$(LFUSE):m -U hfuse:w:$(HFUSE):m -U efuse:w:$(EFUSE):m

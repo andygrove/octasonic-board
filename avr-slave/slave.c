@@ -1,29 +1,35 @@
-// #ifndef F_CPU
-// #define F_CPU 16000000UL
-// #endif
+#ifndef F_CPU
+#define F_CPU 16000000UL
+#endif
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
 
-#define ACK 0x7E
+#include "pinDefines.h"
+#include "macros.h"
 
-// #define BV(bit)               (1 << bit)
-// #define set_bit(sfr, bit)     (_SFR_BYTE(sfr) |= BV(bit))  // old sbi()
-// #define clear_bit(sfr, bit)   (_SFR_BYTE(sfr) &= ~BV(bit)) // old cbi()
+#define ACK 0x7E
 
 void spi_init_slave (void)
 {
+    SPI_SS_DDR &= ~(1 << SPI_SS);                        /* set SS input */
 
-    // clear_bit(DDRB, PB5); // SCK = input
-    // set_bit(DDRB, PB4); // MISO = output
-    // clear_bit(DDRB, PB3); // MOSI = input
-    // clear_bit(DDRB, PB2); // SS = input
+    SPI_MOSI_DDR &= !(1 << SPI_MOSI);                   /* input on MOSI */
+    SPI_MISO_DDR |= (1 << SPI_MISO);                   /* output on MISO */
 
-    DDRB=(1<<6);                                  //MISO as OUTPUT
-    SPCR=(1<<SPE);                                //Enable SPI
+    SPI_MOSI_PORT |= (1 << SPI_MOSI);                  /* pullup on MOSI */
+    SPI_SCK_DDR &= ~(1 << SPI_SCK);                      /* input on SCK */
 
-    //set_bit(DDRB, PB0);
+    /* Don't have to set phase, polarity b/c
+     * default works with 25LCxxx chips */
+    //SPCR |= (1 << SPR1);                /* div 16, safer for breadboards */
+    //SPCR &= ~(1 << MSTR);                                  /* clock slave */
+    SPCR |= (1 << SPE);                                        /* enable */
+
+
+    // LED on PB0
+//    set_bit(DDRB, PB0);
 
 }
 
@@ -38,15 +44,21 @@ unsigned char spi_tranceiver (unsigned char data)
 int main(void)
 {
     spi_init_slave();                             //Initialize slave SPI
-    //unsigned char data;
+    //unsigned char data = 0;
     while(1)
     {
-        /*data =*/ spi_tranceiver(ACK);
-
-        // if (data != 0) {
-        //   set_bit(PORTB, PB0);
-        // } else {
-        //   clear_bit(PORTB, PB0);
+        /*data =*/ spi_tranceiver(170);
+        // counter = counter + 1;
+        //
+        // if (counter == 100) {
+        //   toggle_bit(PORTB, PB0);
         // }
     }
+
+    // while (1) {
+    //   set_bit(PORTB, PB0);
+    //   _delay_ms(500);
+    //   clear_bit(PORTB, PB0);
+    //   _delay_ms(500);
+    // }
 }
