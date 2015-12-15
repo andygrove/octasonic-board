@@ -9,8 +9,10 @@
 #include "pinDefines.h"
 #include "macros.h"
 
-unsigned int sensor_count = 8;
-unsigned int sensor_data[8];
+#define max_sensor_count 8
+
+unsigned int sensor_count = max_sensor_count;
+unsigned int sensor_data[max_sensor_count];
 unsigned int poll_interval_us = 50;
 
 void spi_init_slave (void)
@@ -36,6 +38,11 @@ unsigned char spi_tranceiver (unsigned char data)
 
 int main(void)
 {
+  // fake data for now
+  for (int i=0; i<max_sensor_count; i++) {
+    sensor_data[i] = (i+1) * 11;
+  }
+
   spi_init_slave();                             //Initialize slave SPI
 
   while(1) {
@@ -55,10 +62,16 @@ int main(void)
       case 2: // get_sensor_count
         spi_tranceiver(sensor_count);
         break;
+      case 3: // get_sensor_reading
+        spi_tranceiver(sensor_data[data_in & 0x0F]);
+        break;
       default:
         // 0xFF means error condition
         spi_tranceiver(0xFF);
         break;
     }
+
+    // now monitor the ultra sonic sensors
+
   }
 }

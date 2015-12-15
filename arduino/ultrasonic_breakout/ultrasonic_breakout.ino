@@ -11,14 +11,13 @@ void setup() {
 }
 
 unsigned int send(unsigned int n) {
-  Serial.print("Sending ");
-  Serial.print(n, HEX);
+//  Serial.print("Sending ");
+//  Serial.print(n, HEX);
   digitalWrite(chipSelectPin, LOW);
   unsigned int response = SPI.transfer(n);
   digitalWrite(chipSelectPin, HIGH);
-  Serial.print(" .. received ");
-  Serial.println(response, HEX);
-  delay(1000);
+//  Serial.print(" .. received ");
+//  Serial.println(response, HEX);
   return response;
 }
 
@@ -37,10 +36,21 @@ unsigned int get_sensor_count() {
   return ret;
 }
 
+unsigned int get_sensor_reading(unsigned int index) {
+  //Serial.println("get_sensor_reading()");
+  send(0x30 | index);
+  unsigned int ret = send(0x00);
+  //Serial.print("get_sensor_reading() returning ");
+  //Serial.println(ret);
+  return ret;
+}
+
 
 void loop() {
-  for (int i=1; i<=8; i++) {
-    set_sensor_count(i);
-    get_sensor_count();
+  for (int i=0; i<8; i++) {
+    Serial.print(get_sensor_reading(i));
+    Serial.print(" ");
   }
+  Serial.println();
+  delay(1000);
 }
