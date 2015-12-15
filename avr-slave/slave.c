@@ -9,56 +9,56 @@
 #include "pinDefines.h"
 #include "macros.h"
 
-#define ACK 0x7E
+unsigned int sensor_count = 8;
+unsigned int sensor_data[8];
+unsigned int poll_interval_us = 50;
 
 void spi_init_slave (void)
 {
-    SPI_SS_DDR &= ~(1 << SPI_SS);                        /* set SS input */
+  SPI_SCK_DDR &= ~(1 << SPI_SCK);                      /* input on SCK */
+  SPI_SS_DDR &= ~(1 << SPI_SS);                        /* set SS input */
+  SPI_MOSI_DDR &= !(1 << SPI_MOSI);                   /* input on MOSI */
 
-    SPI_MOSI_DDR &= !(1 << SPI_MOSI);                   /* input on MOSI */
-    SPI_MISO_DDR |= (1 << SPI_MISO);                   /* output on MISO */
+  SPI_MISO_DDR |= (1 << SPI_MISO);                   /* output on MISO */
 
-    SPI_MOSI_PORT |= (1 << SPI_MOSI);                  /* pullup on MOSI */
-    SPI_SCK_DDR &= ~(1 << SPI_SCK);                      /* input on SCK */
+  SPI_MOSI_PORT |= (1 << SPI_MOSI);                  /* pullup on MOSI */
 
-    /* Don't have to set phase, polarity b/c
-     * default works with 25LCxxx chips */
-    //SPCR |= (1 << SPR1);                /* div 16, safer for breadboards */
-    //SPCR &= ~(1 << MSTR);                                  /* clock slave */
-    SPCR |= (1 << SPE);                                        /* enable */
-
-
-    // LED on PB0
-//    set_bit(DDRB, PB0);
-
+  SPCR |= (1 << SPE);                                        /* enable */
 }
 
 //Function to send and receive data
 unsigned char spi_tranceiver (unsigned char data)
 {
-    SPDR = data;                                  //Load data into buffer
-    while(!(SPSR & (1<<SPIF) ));                  //Wait until transmission complete
-    return(SPDR);                                 //Return received data
+  SPDR = data;                                  //Load data into buffer
+  while(!(SPSR & (1<<SPIF) ));                  //Wait until transmission complete
+  return(SPDR);                                 //Return received data
 }
 
 int main(void)
 {
-    spi_init_slave();                             //Initialize slave SPI
-    //unsigned char data = 0;
-    while(1)
-    {
-        /*data =*/ spi_tranceiver(170);
-        // counter = counter + 1;
-        //
-        // if (counter == 100) {
-        //   toggle_bit(PORTB, PB0);
-        // }
-    }
+  spi_init_slave();                             //Initialize slave SPI
 
-    // while (1) {
-    //   set_bit(PORTB, PB0);
-    //   _delay_ms(500);
-    //   clear_bit(PORTB, PB0);
-    //   _delay_ms(500);
-    // }
+  while(1) {
+
+    unsigned int data_in = spi_tranceiver(0);
+
+    // first 4 bits are the command number
+    unsigned int command = (data_in & 0xF0) >> 4;
+
+    switch (command) {
+      case 0:
+        // ignore
+        break;
+      case 1: // set_sensor_count
+        sensor_count = data_in & 0x0F;
+        break;
+      case 2: // get_sensor_count
+        spi_tranceiver(sensor_count);
+        break;
+      default:
+        // 0xFF means error condition
+        spi_tranceiver(0xFF);
+        break;
+    }
+  }
 }

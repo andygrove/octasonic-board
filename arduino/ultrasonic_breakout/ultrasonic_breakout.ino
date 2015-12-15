@@ -10,24 +10,37 @@ void setup() {
   SPI.begin();
 }
 
-void send(unsigned int n) {
-  //Serial.print("Sending ");
-  //Serial.print(n, HEX);
+unsigned int send(unsigned int n) {
+  Serial.print("Sending ");
+  Serial.print(n, HEX);
   digitalWrite(chipSelectPin, LOW);
   unsigned int response = SPI.transfer(n);
   digitalWrite(chipSelectPin, HIGH);
-  //Serial.print(" .. received ");
-  //Serial.println(response, HEX);
-  //delayMicroseconds(100);
+  Serial.print(" .. received ");
+  Serial.println(response, HEX);
+  delay(1000);
+  return response;
 }
 
+void set_sensor_count(unsigned int count) {
+  Serial.print("set_sensor_count() count=");
+  Serial.println(count);
+  send(0x10 | count);
+}
+
+unsigned int get_sensor_count() {
+  Serial.println("get_sensor_count()");
+  send(0x20);
+  unsigned int ret = send(0x00);
+  Serial.print("get_sensor_count() returning ");
+  Serial.println(ret);
+  return ret;
+}
+
+
 void loop() {
-  send(170);
-  send(255);
-  //while (1) {
-    
-//    for (int i=0; i<255; i++) {
-//      send(i);
-//    }
-  //}
+  for (int i=1; i<=8; i++) {
+    set_sensor_count(i);
+    get_sensor_count();
+  }
 }
