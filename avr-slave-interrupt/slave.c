@@ -28,6 +28,11 @@ void spi_init_slave (void)
   SPCR |= ((1 << SPE) | (1 << SPIE));
 
   SPDR = 0;
+
+  DDRB |= (1 << PB0); // PB0 = output (LED)
+
+  DDRC |= (1 << PC0); // PC0 = output (TRIGGER)
+  DDRC &= ~(1 << PC1); // PC1 = input (ECHO)
 }
 
 ISR(SPI_STC_vect) {
@@ -60,18 +65,47 @@ ISR(SPI_STC_vect) {
 
 int main(void)
 {
-  // fake data for now
   for (int i=0; i<MAX_SENSOR_COUNT; i++) {
-    sensor_data[i] = (i+1) * 11;
+    sensor_data[i] = 0;
   }
 
   spi_init_slave();                             //Initialize slave SPI
   sei();
   while(1) {
-    for (int i=0; i<MAX_SENSOR_COUNT; i++) {
-      sensor_data[i] = sensor_data[i] + 1;
-    }
-    _delay_ms(1000);
+    // for (int i=0; i<MAX_SENSOR_COUNT; i++) {
+    //   sensor_data[i] = sensor_data[i] + 1;
+    // }
+
+    // LED on
+    PORTB |= (1 << PB0);
+
+    // trigger
+    PORTC |= (1 << PC0);
+    _delay_us(10);
+    PORTC &= ~(1 << PC0);
+
+    // loop while echo is LOW
+    do { } while (!(PINC & (1 << PC1)));
+
+    // loop while echo is HIGH
+    unsigned int count = 0;
+    do {
+      count = count + 1;
+      _delay_us(1);
+
+      // if (count > 10000) {
+      //   break;
+      // }
+
+    } while (PINC & (1 << PC1));
+
+    sensor_data[0] = count / 59;
+
+    // turn LED off
+    _delay_ms(100);
+    PORTB &= ~(1 << PB0);
+
+    _delay_ms(100);
 
   }
 }
