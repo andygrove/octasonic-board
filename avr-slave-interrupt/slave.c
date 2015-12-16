@@ -31,9 +31,6 @@ void spi_init_slave (void)
   SPDR = 0;
 
   DDRB |= (1 << PB0); // PB0 = output (LED)
-
-  // DDRC |= (1 << PC0); // PC0 = output (TRIGGER)
-  // DDRC &= ~(1 << PC1); // PC1 = input (ECHO)
 }
 
 ISR(SPI_STC_vect) {
