@@ -12,6 +12,7 @@
 #define MAX_SENSOR_COUNT 8
 unsigned int sensor_count = MAX_SENSOR_COUNT;
 unsigned int sensor_data[MAX_SENSOR_COUNT];
+
 unsigned int poll_interval_us = 50;
 
 void spi_init_slave (void)
@@ -31,8 +32,8 @@ void spi_init_slave (void)
 
   DDRB |= (1 << PB0); // PB0 = output (LED)
 
-  DDRC |= (1 << PC0); // PC0 = output (TRIGGER)
-  DDRC &= ~(1 << PC1); // PC1 = input (ECHO)
+  // DDRC |= (1 << PC0); // PC0 = output (TRIGGER)
+  // DDRC &= ~(1 << PC1); // PC1 = input (ECHO)
 }
 
 ISR(SPI_STC_vect) {
@@ -65,6 +66,7 @@ ISR(SPI_STC_vect) {
 
 int main(void)
 {
+
   for (int i=0; i<MAX_SENSOR_COUNT; i++) {
     sensor_data[i] = 0;
   }
@@ -80,12 +82,14 @@ int main(void)
     PORTB |= (1 << PB0);
 
     // trigger
+    DDRC |= (1 << PC0);
     PORTC |= (1 << PC0);
     _delay_us(10);
     PORTC &= ~(1 << PC0);
+    DDRC &= ~(1 << PC0);
 
     // loop while echo is LOW
-    do { } while (!(PINC & (1 << PC1)));
+    do { } while (!(PINC & (1 << PC0)));
 
     // loop while echo is HIGH
     unsigned int count = 0;
@@ -97,14 +101,13 @@ int main(void)
       //   break;
       // }
 
-    } while (PINC & (1 << PC1));
+    } while (PINC & (1 << PC0));
 
     sensor_data[0] = count / 59;
 
     // turn LED off
     _delay_ms(100);
     PORTB &= ~(1 << PB0);
-
     _delay_ms(100);
 
   }
