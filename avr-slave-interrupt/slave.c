@@ -9,7 +9,7 @@
 #include "pinDefines.h"
 #include "macros.h"
 
-#define MAX_SENSOR_COUNT 6
+#define MAX_SENSOR_COUNT 8
 unsigned int sensor_count = MAX_SENSOR_COUNT;
 unsigned int sensor_data[MAX_SENSOR_COUNT];
 
@@ -87,13 +87,13 @@ int main(void)
       PORTB |= (1 << PB0);
 
       // trigger
-      DDRC |= (1 << i);
-      PORTC |= (1 << i);
+      DDRD |= (1 << i);
+      PORTD |= (1 << i);
       _delay_us(10);
-      PORTC &= ~(1 << i);
+      PORTD &= ~(1 << i);
 
       // set pin to input
-      DDRC &= ~(1 << i);
+      DDRD &= ~(1 << i);
 
       // loop while echo is LOW
       unsigned int count = 0;
@@ -101,7 +101,7 @@ int main(void)
         if (++count > 1000) {
           break;
         }
-      } while (!(PINC & (1 << i)));
+      } while (!(PIND & (1 << i)));
 
       // loop while echo is HIGH
       count = 0;
@@ -113,7 +113,7 @@ int main(void)
           break;
         }
 
-      } while (PINC & (1 << i));
+      } while (PIND & (1 << i));
 
       sensor_data[i] = count / 58;
     }
