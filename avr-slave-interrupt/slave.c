@@ -9,7 +9,7 @@
 #include "pinDefines.h"
 #include "macros.h"
 
-#define MAX_SENSOR_COUNT 8
+#define MAX_SENSOR_COUNT 6
 unsigned int sensor_count = MAX_SENSOR_COUNT;
 unsigned int sensor_data[MAX_SENSOR_COUNT];
 
@@ -42,6 +42,7 @@ ISR(SPI_STC_vect) {
 
   // first 4 bits are the command number
   unsigned int command = (data_in & 0xF0) >> 4;
+  unsigned int index = 0;
 
   switch (command) {
     case 0:
@@ -55,7 +56,12 @@ ISR(SPI_STC_vect) {
       SPDR = sensor_count;
       break;
     case 3:
-      SPDR = sensor_data[data_in & 0x0F];
+      index = data_in & 0x0F;
+      if (index<0 || index>=MAX_SENSOR_COUNT) {
+        SPDR = 0xFF;
+      } else {
+        SPDR = sensor_data[index];
+      }
       break;
     default:
       // 0xFF means error condition
@@ -74,36 +80,43 @@ int main(void)
   spi_init_slave();                             //Initialize slave SPI
   sei();
   while(1) {
-    // for (int i=0; i<MAX_SENSOR_COUNT; i++) {
-    //   sensor_data[i] = sensor_data[i] + 1;
-    // }
 
-    // LED on
-    PORTB |= (1 << PB0);
+    for (int i=0; i<MAX_SENSOR_COUNT; i++) {
 
-    // trigger
-    DDRC |= (1 << PC0);
-    PORTC |= (1 << PC0);
-    _delay_us(10);
-    PORTC &= ~(1 << PC0);
-    DDRC &= ~(1 << PC0);
+      // LED on
+      PORTB |= (1 << PB0);
 
-    // loop while echo is LOW
-    do { } while (!(PINC & (1 << PC0)));
+      // trigger
+      DDRC |= (1 << i);
+      PORTC |= (1 << i);
+      _delay_us(10);
+      PORTC &= ~(1 << i);
 
-    // loop while echo is HIGH
-    unsigned int count = 0;
-    do {
-      count = count + 1;
-      _delay_us(1);
+      // set pin to input
+      DDRC &= ~(1 << i);
 
-      // if (count > 10000) {
-      //   break;
-      // }
+      // loop while echo is LOW
+      unsigned int count = 0;
+      do {
+        if (++count > 1000) {
+          break;
+        }
+      } while (!(PINC & (1 << i)));
 
-    } while (PINC & (1 << PC0));
+      // loop while echo is HIGH
+      count = 0;
+      do {
+        count = count + 1;
+        _delay_us(1);
 
-    sensor_data[0] = count / 59;
+        if (count > 5800) {
+          break;
+        }
+
+      } while (PINC & (1 << i));
+
+      sensor_data[i] = count / 58;
+    }
 
     // turn LED off
     _delay_ms(100);
