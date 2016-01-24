@@ -4217,7 +4217,7 @@ This is the "EZ" version, which has limited top masking for improved ease of ass
 <instance part="SUPPLY3" gate="G$1" x="81.28" y="12.7"/>
 <instance part="GND4" gate="1" x="81.28" y="-12.7"/>
 <instance part="1" gate="G$1" x="132.08" y="83.82"/>
-<instance part="R1" gate="G$1" x="144.78" y="83.82"/>
+<instance part="R1" gate="G$1" x="144.78" y="86.36"/>
 <instance part="2" gate="G$1" x="132.08" y="63.5"/>
 <instance part="R2" gate="G$1" x="144.78" y="63.5"/>
 <instance part="3" gate="G$1" x="132.08" y="43.18"/>
@@ -4489,27 +4489,20 @@ This is the "EZ" version, which has limited top masking for improved ease of ass
 <label x="66.04" y="33.02" size="1.778" layer="95"/>
 </segment>
 </net>
-<net name="TRIGGER1" class="0">
-<segment>
-<pinref part="1" gate="G$1" pin="2"/>
-<pinref part="R1" gate="G$1" pin="1"/>
-<wire x1="137.16" y1="83.82" x2="139.7" y2="83.82" width="0.1524" layer="91"/>
-</segment>
-</net>
 <net name="PD0" class="0">
-<segment>
-<pinref part="1" gate="G$1" pin="3"/>
-<wire x1="137.16" y1="86.36" x2="152.4" y2="86.36" width="0.1524" layer="91"/>
-<junction x="152.4" y="86.36"/>
-<wire x1="152.4" y1="86.36" x2="152.4" y2="83.82" width="0.1524" layer="91"/>
-<pinref part="R1" gate="G$1" pin="2"/>
-<wire x1="152.4" y1="83.82" x2="149.86" y2="83.82" width="0.1524" layer="91"/>
-<label x="137.16" y="86.36" size="1.778" layer="95"/>
-</segment>
 <segment>
 <pinref part="U1" gate="G$1" pin="PD0(RXD)"/>
 <wire x1="66.04" y1="60.96" x2="73.66" y2="60.96" width="0.1524" layer="91"/>
 <label x="66.04" y="60.96" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="R1" gate="G$1" pin="2"/>
+<wire x1="149.86" y1="86.36" x2="152.4" y2="86.36" width="0.1524" layer="91"/>
+<junction x="152.4" y="86.36"/>
+<wire x1="152.4" y1="86.36" x2="152.4" y2="83.82" width="0.1524" layer="91"/>
+<pinref part="1" gate="G$1" pin="2"/>
+<wire x1="152.4" y1="83.82" x2="137.16" y2="83.82" width="0.1524" layer="91"/>
+<label x="137.16" y="83.82" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="PD3" class="0">
@@ -4629,6 +4622,7 @@ This is the "EZ" version, which has limited top masking for improved ease of ass
 <pinref part="2" gate="G$1" pin="2"/>
 <pinref part="R2" gate="G$1" pin="1"/>
 <wire x1="137.16" y1="63.5" x2="139.7" y2="63.5" width="0.1524" layer="91"/>
+<label x="137.16" y="63.5" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="N$6" class="0">
@@ -4690,6 +4684,14 @@ This is the "EZ" version, which has limited top masking for improved ease of ass
 <wire x1="99.06" y1="63.5" x2="101.6" y2="63.5" width="0.1524" layer="91"/>
 <pinref part="LED" gate="G$1" pin="A"/>
 <wire x1="101.6" y1="63.5" x2="101.6" y2="60.96" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$4" class="0">
+<segment>
+<pinref part="1" gate="G$1" pin="3"/>
+<pinref part="R1" gate="G$1" pin="1"/>
+<wire x1="137.16" y1="86.36" x2="139.7" y2="86.36" width="0.1524" layer="91"/>
+<label x="137.16" y="86.36" size="1.778" layer="95"/>
 </segment>
 </net>
 </nets>
