@@ -9,20 +9,19 @@
 #include "pinDefines.h"
 #include "macros.h"
 
-#define MAX_SENSOR_COUNT 8
+#define MAX_SENSOR_COUNT 1
 unsigned int sensor_count = MAX_SENSOR_COUNT;
-unsigned int sensor_data[MAX_SENSOR_COUNT];
-
 unsigned int poll_interval_us = 50;
+
+volatile unsigned int sensor_data[MAX_SENSOR_COUNT];
 
 void spi_init_slave (void)
 {
-  SPI_SCK_DDR &= ~(1 << SPI_SCK);                      /* input on SCK */
-  SPI_SS_DDR &= ~(1 << SPI_SS);                        /* set SS input */
-  SPI_MOSI_DDR &= !(1 << SPI_MOSI);                   /* input on MOSI */
+  SPI_SCK_DDR   &= ~(1 << SPI_SCK);                      /* input on SCK */
+  SPI_SS_DDR    &= ~(1 << SPI_SS);                        /* set SS input */
+  SPI_MOSI_DDR  &= ~(1 << SPI_MOSI);                   /* input on MOSI */
 
-  SPI_MISO_DDR |= (1 << SPI_MISO);                   /* output on MISO */
-
+  SPI_MISO_DDR  |= (1 << SPI_MISO);                   /* output on MISO */
   SPI_MOSI_PORT |= (1 << SPI_MOSI);                  /* pullup on MOSI */
 
   // enable SPI and SPI interrupt
@@ -116,9 +115,9 @@ int main(void)
     }
 
     // turn LED off
-    _delay_ms(100);
+    _delay_ms(50);
     PORTB &= ~(1 << PB0);
-    _delay_ms(100);
+    _delay_ms(50);
 
   }
 }
