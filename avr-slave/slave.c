@@ -12,8 +12,9 @@
 #define max_sensor_count 8
 
 unsigned int sensor_count = max_sensor_count;
-unsigned int sensor_data[max_sensor_count];
 unsigned int poll_interval_us = 50;
+
+volatile unsigned int sensor_data[max_sensor_count];
 
 void spi_init_slave (void)
 {
@@ -36,16 +37,56 @@ unsigned char spi_tranceiver (unsigned char data)
   return(SPDR);                                 //Return received data
 }
 
+int poll_sensor(unsigned int i) {
+
+  // trigger
+  DDRD |= (1 << i);
+  PORTD |= (1 << i);
+  _delay_us(10);
+  PORTD &= ~(1 << i);
+
+  // set pin to input
+  DDRD &= ~(1 << i);
+
+  // loop while echo is LOW
+  unsigned int count = 0;
+  do {
+    if (++count > 1000) {
+      break;
+    }
+  } while (!(PIND & (1 << i)));
+
+  // loop while echo is HIGH
+  count = 0;
+  do {
+    count = count + 1;
+    _delay_us(1);
+
+    if (count > 5800) {
+      break;
+    }
+
+  } while (PIND & (1 << i));
+
+  return count / 58;
+
+}
+
 int main(void)
 {
-  // fake data for now
+  // init state to zero
   for (int i=0; i<max_sensor_count; i++) {
-    sensor_data[i] = (i+1) * 11;
+    sensor_data[i] = 0;
   }
 
   spi_init_slave();                             //Initialize slave SPI
 
   while(1) {
+
+    // take sensor readings
+    for (int i=0; i<max_sensor_count; i++) {
+      sensor_data[i] = poll_sensor(i);
+    }
 
     unsigned int data_in = spi_tranceiver(0);
 
@@ -70,8 +111,6 @@ int main(void)
         spi_tranceiver(0xFF);
         break;
     }
-
-    // now monitor the ultra sonic sensors
 
   }
 }
