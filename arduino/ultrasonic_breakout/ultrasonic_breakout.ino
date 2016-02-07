@@ -1,3 +1,6 @@
+#include "pitches.h"
+
+
 #include <SPI.h>
 
 const int chipSelectPin = 10;

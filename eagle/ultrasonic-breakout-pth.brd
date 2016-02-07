@@ -152,7 +152,7 @@
 <text x="13.97" y="75.565" size="0.8128" layer="25" rot="R90">Trig</text>
 <text x="11.43" y="75.565" size="0.8128" layer="25" rot="R90">Echo</text>
 <text x="16.51" y="75.565" size="0.8128" layer="25" rot="R90">5V</text>
-<text x="19.05" y="77.47" size="1.016" layer="25" font="vector" ratio="10">HC-SR04 Breakout 1.0.1</text>
+<text x="19.05" y="77.47" size="1.016" layer="25" font="vector" ratio="10">HC-SR04 Breakout 1.0.2</text>
 <text x="50.8" y="40.005" size="1.016" layer="25" font="vector" ratio="10" rot="R180">Copyright 2016 Grove Enterprises LLC</text>
 <text x="57.15" y="57.15" size="0.6096" layer="25" rot="R90">5V</text>
 <text x="57.15" y="54.61" size="0.6096" layer="25" rot="R90">SCK</text>

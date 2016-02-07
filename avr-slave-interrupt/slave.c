@@ -9,7 +9,7 @@
 #include "pinDefines.h"
 #include "macros.h"
 
-#define MAX_SENSOR_COUNT 1
+#define MAX_SENSOR_COUNT 8
 unsigned int sensor_count = MAX_SENSOR_COUNT;
 unsigned int poll_interval_us = 50;
 
@@ -64,6 +64,43 @@ ISR(SPI_STC_vect) {
       SPDR = 0xFF;
       break;
   }
+
+  // toggle LED
+  PORTB &= ~(1 << PB0);
+
+}
+
+unsigned int poll_sensor(unsigned int i) {
+  // trigger
+  DDRD |= (1 << i);
+  PORTD |= (1 << i);
+  _delay_us(10);
+  PORTD &= ~(1 << i);
+
+  // set pin to input
+  DDRD &= ~(1 << i);
+
+  // loop while echo is LOW
+  unsigned int count = 0;
+  do {
+    if (++count > 1000) {
+      break;
+    }
+  } while (!(PIND & (1 << i)));
+
+  // loop while echo is HIGH
+  count = 0;
+  do {
+    count = count + 1;
+    _delay_us(1);
+
+    if (count > 5800) {
+      break;
+    }
+
+  } while (PIND & (1 << i));
+
+  return count / 58;
 }
 
 int main(void)
@@ -76,48 +113,9 @@ int main(void)
   spi_init_slave();                             //Initialize slave SPI
   sei();
   while(1) {
-
     for (int i=0; i<MAX_SENSOR_COUNT; i++) {
-
-      // LED on
-      PORTB |= (1 << PB0);
-
-      // trigger
-      DDRD |= (1 << i);
-      PORTD |= (1 << i);
-      _delay_us(10);
-      PORTD &= ~(1 << i);
-
-      // set pin to input
-      DDRD &= ~(1 << i);
-
-      // loop while echo is LOW
-      unsigned int count = 0;
-      do {
-        if (++count > 1000) {
-          break;
-        }
-      } while (!(PIND & (1 << i)));
-
-      // loop while echo is HIGH
-      count = 0;
-      do {
-        count = count + 1;
-        _delay_us(1);
-
-        if (count > 5800) {
-          break;
-        }
-
-      } while (PIND & (1 << i));
-
-      sensor_data[i] = count / 58;
+      sensor_data[i] = poll_sensor(i);
+      _delay_us(10000);
     }
-
-    // turn LED off
-    _delay_ms(50);
-    PORTB &= ~(1 << PB0);
-    _delay_ms(50);
-
   }
 }
