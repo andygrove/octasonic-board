@@ -12,6 +12,7 @@
 #define MAX_SENSOR_COUNT 8
 unsigned int sensor_count = MAX_SENSOR_COUNT;
 unsigned int poll_interval_us = 50;
+unsigned int counter = 0;
 
 volatile unsigned int sensor_data[MAX_SENSOR_COUNT];
 
@@ -94,7 +95,8 @@ unsigned int poll_sensor(unsigned int i) {
     count = count + 1;
     _delay_us(1);
 
-    if (count > 5800) {
+    // time out after 2*5800us (200 cm)
+    if (count > 2*5800) {
       break;
     }
 
@@ -115,7 +117,8 @@ int main(void)
   while(1) {
     for (int i=0; i<MAX_SENSOR_COUNT; i++) {
       sensor_data[i] = poll_sensor(i);
-      _delay_us(10000);
+      // sleep for 50 ms between readings
+      _delay_us(50000);
     }
   }
 }
